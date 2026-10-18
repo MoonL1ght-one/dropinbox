@@ -7,7 +7,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 
-> A local-first inbox for your Downloads folder. Watches the directory, files by type / download source / content keywords, with editable rules, dry-run preview and one-click undo. Zero dependencies, no cloud, nothing leaves your machine.
+> 全部在本地运行：不联网、不上传、零第三方依赖，文件一个都不离开你的电脑。
 
 ---
 
