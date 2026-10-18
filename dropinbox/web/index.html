@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DropInbox · 下载文件夹收件箱</title>
+<link rel="stylesheet" href="/static/style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f46e5'/><path d='M16 7v11m0 0l-4-4m4 4l4-4M9 21v3h14v-3' stroke='white' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v10m0 0-3.5-3.5M12 13l3.5-3.5" />
+          <path d="M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <strong>DropInbox</strong>
+        <span>本地优先的收件箱</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item is-active" data-view="inbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h5l2 3h4l2-3h5"/><path d="M5.5 5h13l2.5 7v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5l2.5-7Z"/></svg>
+        <span>收件箱</span>
+        <em class="pill" id="pill-inbox">0</em>
+      </button>
+      <button class="nav-item" data-view="rules">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg>
+        <span>规则</span>
+        <em class="pill" id="pill-rules">0</em>
+      </button>
+      <button class="nav-item" data-view="history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3 4v4h4"/><path d="M12 8v4.5l3 1.8"/></svg>
+        <span>历史</span>
+      </button>
+      <button class="nav-item" data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.4-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.4l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4Z"/></svg>
+        <span>设置</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="watch-state" id="watch-state">
+        <span class="dot"></span>
+        <div>
+          <strong id="watch-label">未监听</strong>
+          <small id="watch-sub">空闲中</small>
+        </div>
+      </div>
+      <button class="btn btn-watch" id="btn-watch">开始监听</button>
+      <p class="version" id="version">v0.1.0</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1 id="view-title">收件箱</h1>
+        <p id="view-sub">下载目录里还没归位的文件</p>
+      </div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </header>
+
+    <!-- 收件箱 -->
+    <section class="view is-active" id="view-inbox">
+      <div class="stat-row" id="stats"></div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>待归档</h2>
+            <p id="pending-hint">加载中…</p>
+          </div>
+          <label class="check-all" id="select-all-wrap">
+            <input type="checkbox" id="select-all" />
+            <span>全选</span>
+          </label>
+        </div>
+        <div class="rows" id="pending-rows"></div>
+      </div>
+
+      <details class="panel panel-quiet" id="skipped-panel">
+        <summary>跳过的文件 <span id="skipped-count">0</span></summary>
+        <div class="rows rows-quiet" id="skipped-rows"></div>
+      </details>
+    </section>
+
+    <!-- 规则 -->
+    <section class="view" id="view-rules">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>匹配规则</h2>
+            <p>优先级数字越小越先匹配，命中第一条即停止</p>
+          </div>
+          <label class="switch-all">
+            <input type="checkbox" id="rules-json-toggle" />
+            <span>JSON 模式</span>
+          </label>
+        </div>
+        <div id="rules-editor"></div>
+        <div class="json-editor" id="json-editor" hidden>
+          <textarea id="json-text" spellcheck="false"></textarea>
+          <div class="json-actions">
+            <button class="btn" id="btn-json-revert">放弃修改</button>
+            <button class="btn btn-primary" id="btn-json-save">保存 JSON</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 历史 -->
+    <section class="view" id="view-history">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>归档历史</h2>
+            <p>每一批都可以整批撤回，文件回到原来的位置</p>
+          </div>
+        </div>
+        <div class="rows" id="history-rows"></div>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section class="view" id="view-settings">
+      <div class="panel">
+        <div class="panel-head"><div><h2>监听目录</h2><p>每行一个，支持 ~ 与环境变量</p></div></div>
+        <div class="field-block">
+          <label class="field-label">目录列表</label>
+          <textarea class="field-area" id="cfg-watch" rows="3" spellcheck="false"></textarea>
+        </div>
+        <div class="field-row">
+          <label>归档根目录</label>
+          <input class="field" id="cfg-root" spellcheck="false" />
+        </div>
+        <div class="field-grid">
+          <div class="field-row">
+            <label>轮询间隔（秒）</label>
+            <input class="field" id="cfg-poll" type="number" step="0.5" min="0.5" />
+          </div>
+          <div class="field-row">
+            <label>落盘稳定判定（秒）</label>
+            <input class="field" id="cfg-settle" type="number" step="0.5" min="0.5" />
+          </div>
+        </div>
+        <label class="check-line">
+          <input type="checkbox" id="cfg-recursive" />
+          <span>递归监听子目录</span>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btn-save-config">保存设置</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>数据在哪</h2><p>全部是本机文件，不会上传任何地方</p></div></div>
+        <div class="meta-list" id="path-list"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+<div class="modal-backdrop" id="modal" hidden>
+  <div class="modal">
+    <h3 id="modal-title">确认</h3>
+    <p id="modal-body"></p>
+    <div class="modal-actions">
+      <button class="btn" id="modal-cancel">取消</button>
+      <button class="btn btn-primary" id="modal-ok">确定</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
